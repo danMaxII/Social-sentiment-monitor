@@ -1,0 +1,5 @@
+!Storhet123 = postgress password
+client ID = 03dce269-ac38-4244-8589-bd1854becc2c
+client Secret = B9bFaZ3TQF0GSS4CKQeCbo69gKSdsQyRV-OgfiWtQgQ
+client ID = 4bc22035-5586-40da-8dd9-8f265bf85ca7
+client secret = sFgFEtVC1LGbkjBlQ_PoLPRB1oBwQxNt8ESOJS6q0Sc
