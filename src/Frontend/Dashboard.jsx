@@ -4,7 +4,9 @@ import { supabase } from "../supabaseClient";
 import { LuMail, LuMenu, LuX } from "react-icons/lu";
 import { FaMessage } from "react-icons/fa6";
 import { MdSentimentSatisfied, MdSentimentDissatisfied } from "react-icons/md";
-import {LuCloud, LuLayoutDashboard, LuFolderKanban, LuChartPie,LuFileText, LuBell, LuSettings, LuClipboardList,LuLogOut, LuScan} from "react-icons/lu";
+import { LuCloud, LuLayoutDashboard, LuFolderKanban, LuChartPie, LuFileText, LuBell, LuSettings, LuClipboardList, LuLogOut, LuScan } from "react-icons/lu";
+
+import Connections from "./Connections";
 
 // Pie chart component
 function Donut({ summary }) {
@@ -146,7 +148,7 @@ export default function Dashboard({ session }) {
     });
 
     const handleSignOut = () => supabase.auth.signOut();
-    const nav = [["Dashboard", <LuLayoutDashboard />], ["Mentions", <LuFolderKanban />], ["Sentiment", <LuChartPie />], ["Alerts", <LuBell />], ["Reports", <LuFileText />], ["Settings", <LuSettings />], ["Logs", <LuClipboardList />], ["SignOut", <LuLogOut />]];
+    const nav = [["Dashboard", <LuLayoutDashboard />], ["Mentions", <LuFolderKanban />], ["Connections", <LuChartPie />], ["Alerts", <LuBell />], ["Reports", <LuFileText />], ["Settings", <LuSettings />], ["Logs", <LuClipboardList />], ["SignOut", <LuLogOut />]];
 
     const handleNavClick = (name) => {
         setMenuOpen(false);
@@ -154,6 +156,112 @@ export default function Dashboard({ session }) {
             setShowSignOutModal(true);
         } else {
             setActive(name);
+        }
+    };
+
+    const renderContent = () => {
+        switch (active) {
+            case "Connections":
+                return <Connections />;
+            case "Dashboard":
+            default:
+                return (
+                    <>
+                        <div className="intro">
+                            <div>
+                                <strong>{session?.user?.email}</strong>
+                                <p>Monitor social media comments and automatically classify sentiment.</p>
+                            </div>
+                            <div className="actions">
+                                <button className="secondary" onClick={fetchMentions}><LuScan /> Scan now</button>
+                                <button className="primary"><LuMail /> Send report</button>
+                            </div>
+                        </div>
+
+                        <div className="cards">
+                            <div className="stat-card">
+                                <div className="stat-icon blue"><FaMessage size={20} /></div>
+                                <div><span>Total Mentions</span><small>{summary.total} stored</small></div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon green"><MdSentimentSatisfied size={20} /></div>
+                                <div><span>Positive</span><small>{summary.positive} mentions</small></div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon red"><MdSentimentDissatisfied size={20} /></div>
+                                <div><span>Negative</span><small>{summary.negative} mentions</small></div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon orange">―</div>
+                                <div><span>Neutral</span><small>{summary.neutral} mentions</small></div>
+                            </div>
+                        </div>
+
+                        <div className="grid-two">
+                            <section className="panel">
+                                <div className="panel-header"><h3>Sentiment Overview</h3></div>
+                                <Donut summary={summary} />
+                            </section>
+                            <section className="panel">
+                                <div className="panel-header">
+                                    <h3>Sentiment Trend <small>(Last 7 Days)</small></h3>
+                                    <div className="chart-legend">
+                                        <span><i className="dot positive" />Positive</span>
+                                        <span><i className="dot negative" />Negative</span>
+                                        <span><i className="dot neutral" />Neutral</span>
+                                    </div>
+                                </div>
+                                <Trend mentions={mentions} />
+                            </section>
+                        </div>
+
+                        <div className="grid-bottom">
+                            <section className="panel mentions-panel">
+                                <div className="panel-header mention-head">
+                                    <h3>Recent Mentions</h3>
+                                    <div className="filters">
+                                        {["All", "Positive", "Negative", "Neutral"].map(f => (
+                                            <button
+                                                key={f}
+                                                className={`filter ${filter === f ? "active" : ""}`}
+                                                onClick={() => setFilter(f)}
+                                            >
+                                                {f}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="search-row">
+                                    <input
+                                        placeholder="Search mentions..."
+                                        value={search}
+                                        onChange={e => setSearch(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mention-list">
+                                    {loading ? (
+                                        <p style={{ padding: "20px", color: "#64748b" }}>Loading mentions...</p>
+                                    ) : filtered.length === 0 ? (
+                                        <p style={{ padding: "20px", color: "#64748b" }}>No mentions found.</p>
+                                    ) : (
+                                        filtered.map(m => (
+                                            <div className="mention" key={m.id}>
+                                                <div className={`platform ${m.platform?.toLowerCase()}`}>
+                                                    {m.platform === "Facebook" ? "f" : m.platform === "TikTok" ? "♪" : "𝕏"}
+                                                </div>
+                                                <p>{m.content || m.text}</p>
+                                                <span className={`pill ${m.sentiment?.toLowerCase()}`}>{m.sentiment}</span>
+                                                <time>
+                                                    {new Date(m.created_at || m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                </time>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </section>
+                        </div>
+                    </>
+                );
         }
     };
 
@@ -197,100 +305,7 @@ export default function Dashboard({ session }) {
                 </header>
 
                 <section className="content">
-                    <div className="intro">
-                        
-                        <div>
-                            <strong>{session?.user?.email}</strong>
-                            <p>Monitor social media comments and automatically classify sentiment.</p>
-                        </div>
-                        <div className="actions">
-                            <button className="secondary" onClick={fetchMentions}><LuScan /> Scan now</button>
-                            <button className="primary"><LuMail /> Send report</button>
-                        </div>
-                    </div>
-
-                    <div className="cards">
-                        <div className="stat-card">
-                            <div className="stat-icon blue"><FaMessage size={20} /></div>
-                            <div><span>Total Mentions</span><small>{summary.total} stored</small></div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon green"><MdSentimentSatisfied size={20} /></div>
-                            <div><span>Positive</span><small>{summary.positive} mentions</small></div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon red"><MdSentimentDissatisfied size={20} /></div>
-                            <div><span>Negative</span><small>{summary.negative} mentions</small></div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon orange">―</div>
-                            <div><span>Neutral</span><small>{summary.neutral} mentions</small></div>
-                        </div>
-                    </div>
-
-                    <div className="grid-two">
-                        <section className="panel">
-                            <div className="panel-header"><h3>Sentiment Overview</h3></div>
-                            <Donut summary={summary} />
-                        </section>
-                        <section className="panel">
-                            <div className="panel-header">
-                                <h3>Sentiment Trend <small>(Last 7 Days)</small></h3>
-                                <div className="chart-legend">
-                                    <span><i className="dot positive" />Positive</span>
-                                    <span><i className="dot negative" />Negative</span>
-                                    <span><i className="dot neutral" />Neutral</span>
-                                </div>
-                            </div>
-                            <Trend mentions={mentions} />
-                        </section>
-                    </div>
-
-                    <div className="grid-bottom">
-                        <section className="panel mentions-panel">
-                            <div className="panel-header mention-head">
-                                <h3>Recent Mentions</h3>
-                                <div className="filters">
-                                    {["All", "Positive", "Negative", "Neutral"].map(f => (
-                                        <button
-                                            key={f}
-                                            className={`filter ${filter === f ? "active" : ""}`}
-                                            onClick={() => setFilter(f)}
-                                        >
-                                            {f}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="search-row">
-                                <input
-                                    placeholder="Search mentions..."
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                />
-                            </div>
-                            <div className="mention-list">
-                                {loading ? (
-                                    <p style={{ padding: "20px", color: "#64748b" }}>Loading mentions...</p>
-                                ) : filtered.length === 0 ? (
-                                    <p style={{ padding: "20px", color: "#64748b" }}>No mentions found.</p>
-                                ) : (
-                                    filtered.map(m => (
-                                        <div className="mention" key={m.id}>
-                                            <div className={`platform ${m.platform?.toLowerCase()}`}>
-                                                {m.platform === "Facebook" ? "f" : m.platform === "TikTok" ? "♪" : "𝕏"}
-                                            </div>
-                                            <p>{m.content || m.text}</p>
-                                            <span className={`pill ${m.sentiment?.toLowerCase()}`}>{m.sentiment}</span>
-                                            <time>
-                                                {new Date(m.created_at || m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                            </time>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </section>
-                    </div>
+                    {renderContent()}
                 </section>
             </main>
 

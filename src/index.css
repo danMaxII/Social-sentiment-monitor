@@ -197,6 +197,23 @@ nav {
     margin-bottom: 18px
 }
 
+.cardContainer{
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+    margin-bottom: 18px
+}
+.socialCard{
+    display: grid;
+    background: #fff;
+    border: 1px solid #e8edf4;
+    border-radius: 11px;
+    padding: 21px 20px;
+    align-items: center;
+    gap: 15px;
+    min-height: 128px;
+    box-shadow: 0 2px 7px rgba(16, 24, 40, .03)
+}
 .stat-card {
     background: #fff;
     border: 1px solid #e8edf4;
