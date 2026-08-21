@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient";
 import { LuMail, LuMenu, LuX } from "react-icons/lu";
 import { FaMessage } from "react-icons/fa6";
 import { MdSentimentSatisfied, MdSentimentDissatisfied } from "react-icons/md";
-import {LuCloud, LuLayoutDashboard, LuFolderKanban, LuChartPie,LuFileText, LuBell, LuSettings, LuClipboardList,LuLogOut} from "react-icons/lu";
+import {LuCloud, LuLayoutDashboard, LuFolderKanban, LuChartPie,LuFileText, LuBell, LuSettings, LuClipboardList,LuLogOut, LuScan} from "react-icons/lu";
 
 // Pie chart component
 function Donut({ summary }) {
@@ -204,8 +204,8 @@ export default function Dashboard({ session }) {
                             <p>Monitor social media comments and automatically classify sentiment.</p>
                         </div>
                         <div className="actions">
-                            <button className="secondary" onClick={fetchMentions}>↻ Scan now</button>
-                            <button className="primary">✉ Send report</button>
+                            <button className="secondary" onClick={fetchMentions}><LuScan /> Scan now</button>
+                            <button className="primary"><LuMail /> Send report</button>
                         </div>
                     </div>
 
