@@ -214,6 +214,11 @@ nav {
     min-height: 128px;
     box-shadow: 0 2px 7px rgba(16, 24, 40, .03)
 }
+.socialCardHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 .stat-card {
     background: #fff;
     border: 1px solid #e8edf4;

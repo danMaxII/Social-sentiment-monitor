@@ -107,7 +107,7 @@ export default function Dashboard({ session }) {
     const fetchMentions = async () => {
         setLoading(true);
         const { data, error } = await supabase
-            .from("sentiment_logs")
+            .from("mentions")
             .select("*")
             .order("created_at", { ascending: false });
 
@@ -246,18 +246,45 @@ export default function Dashboard({ session }) {
                                     ) : (
                                         filtered.map(m => (
                                             <div className="mention" key={m.id}>
+                                                {/* Platform Icon */}
                                                 <div className={`platform ${m.platform?.toLowerCase()}`}>
                                                     {m.platform === "Facebook" ? "f" : m.platform === "TikTok" ? "♪" : "𝕏"}
                                                 </div>
-                                                <p>{m.content || m.text}</p>
+
+                                                {/* Content & Metadata */}
+                                                <div style={{ flex: 1 }}>
+                                                    {/* Author & Bank Name Header */}
+                                                    <div style={{ display: "flex", gap: "8px", fontSize: "13px", color: "#64748b", marginBottom: "4px" }}>
+                                                        <strong style={{ color: "#0f172a" }}>{m.author_name || "Anonymous User"}</strong>
+                                                        {m.bank_name && <span>• {m.bank_name}</span>}
+                                                    </div>
+
+                                                    {/* Comment Content */}
+                                                    <p style={{ margin: "0 0 6px 0" }}>{m.content || m.text}</p>
+
+                                                    {/* Link to original post if available */}
+                                                    {m.post_url && (
+                                                        <a
+                                                            href={m.post_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            style={{ fontSize: "12px", color: "#2563eb", textDecoration: "none" }}
+                                                        >
+                                                            View original post →
+                                                        </a>
+                                                    )}
+                                                </div>
+
+                                                {/* Sentiment Pill & Timestamp */}
                                                 <span className={`pill ${m.sentiment?.toLowerCase()}`}>{m.sentiment}</span>
                                                 <time>
-                                                    {new Date(m.created_at || m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                    {new Date(m.created_at || m.published_at || m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                                                 </time>
                                             </div>
                                         ))
                                     )}
                                 </div>
+
                             </section>
                         </div>
                     </>
